@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sw-soup</title>
+    <style>
+        body {
+            text-align: center;
+            color: grey;
+        }
 
+        img {
+            width: 250px;
+            border-radius: 30px;
+            margin: 10px 10px 10px 0;
+        }
+
+        #up {
+            display: none;
+            margin: 50px auto;
+            padding: 10px;
+            border: none;
+        }
+
+        #cred {
+            margin-top: 50px;
+            font-size: 85%;
+        }
+
+        a {
+            color: rgb(0, 167, 111);
+        }
+    </style>
+</head>
+
+<body>
+    <br><br><br>
+    <img src="cat1.jpg"><img src="cat2.jpg">
+
+    <div id="cred">
+        cat1.jpg by <a href="//commons.wikimedia.org/wiki/User:Basile_Morin" title="User:Basile Morin">Basile Morin</a>
+        - <span class="int-own-work" lang="en">Own work</span>, <a href="https://creativecommons.org/licenses/by-sa/4.0"
+            title="Creative Commons Attribution-Share Alike 4.0">CC BY-SA 4.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=68508072">Link</a><br />
+        cat2.jpg by <a href="//www.flickr.com/people/27816381@N00" class="extiw" title="flickruser:27816381@N00">Niels
+            Hartvig</a> - <a href="//commons.wikimedia.org/wiki/Flickr" class="mw-redirect" title="Flickr">Flickr</a>:
+        <a rel="nofollow" class="external text" href="https://www.flickr.com/photos/27816381@N00/5672803059">You even
+            scare me, Psycho!</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0" title="Creative Commons Attribution-Share Alike 2.0">CC
+            BY-SA 2.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=31074921">Link</a>
+    </div>
+
+    <button id="up" onclick="upSW();">upgrade</button>
+
+</body>
+<script src="/sw.js"></script>
+
+<script>
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload()
+    });
+    var newSW;
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then((reg) => {
+                reg.addEventListener('updatefound', () => {
+                    // Copy reference of new worker being installed
+                    newSW = reg.installing;
+                    newSW.addEventListener('statechange', () => {
+                        // service worker state changed except initial one
+                        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                            // display upgrade button
+                            document.getElementById('up').style.display = "block";
+                        }
+                    })
+                })
+            }).catch((e) => {
+                console.log(e);
+            });
+    }
+
+    var upSW = () => {
+        console.log('Initiating upgrade');
+        // Send message to new service worker
+        newSW.postMessage({ action: 'clearOld' });
+        newSW.postMessage({ action: 'skipWaiting' });
+    }
+
+
+
+</script>
+
+</html>
